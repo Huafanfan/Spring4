@@ -2,21 +2,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd">
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+        default-autowire="byName">
+    <context:property-placeholder location="classpath:db.properties"/>
 	<!-- 数据源封装类 .数据源:获取数据库连接,spring-jdbc.jar中-->
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
-		<property name="url" value="jdbc:mysql://localhost:3306/ssm"></property>
-		<property name="username" value="root"></property>
-		<property name="password" value="alex0425"></property>
+		<property name="driverClassName" value="${jdbc.driverClassName}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
 	</bean>
 	<!-- 创建SqlSessionFactory对象 -->
 	<bean id="factory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<!-- 数据库连接信息来源于dataSource -->
-		<property name="dataSource" ref="dataSource"></property>
 		<property name="typeAliasesPackage" value="com.huafanfan.pojo"></property>
 	</bean>
 	 <!-- 扫描器相当于mybatis.xml中 mappers下package标签,扫描com.bjsxt.mapper包后会给对应接口创建对象-->
@@ -24,11 +27,10 @@
     	<!-- 要扫描哪个包 -->
     	<property name="basePackage" value="com.huafanfan.mapper"></property>
     	<!-- 和factory产生关系 -->
-    	<property name="sqlSessionFactory" ref="factory"></property>
+    	<property name="sqlSessionFactoryBeanName" value="factory"></property>
     </bean>
 	<!-- 创建Service -->
     <bean id="usersService" class="com.huafanfan.service.impl.UsersServiceImpl">
-    	<property name="usersMapper" ref="usersMapper"></property>
     </bean>
     <!-- aop -->
     <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
@@ -39,5 +41,6 @@
     	<aop:advisor advice-ref="mybefore" pointcut-ref="mypoint"/>
     	<aop:advisor advice-ref="myafter" pointcut-ref="mypoint"/>
     </aop:config>
+    
     
 </beans>
